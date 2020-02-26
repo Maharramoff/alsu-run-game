@@ -10,6 +10,35 @@ class Canvas
     }
 }
 
+class Background
+{
+    constructor(canvas, src)
+    {
+        this.ctx = canvas.context;
+        this.img = new Image();
+        this.scrollX = 0;
+        this.scrollSpeed = 2;
+        this.img.src = src;
+    }
+
+    draw()
+    {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+
+        // Resetting the images when the first image exits the screen
+        if (this.scrollX >= this.ctx.canvas.width)
+        {
+            this.scrollX = 0;
+        }
+
+        // Update background X position
+        this.scrollX += this.scrollSpeed;
+
+        this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+    }
+}
+
 class Game
 {
     constructor(canvas)
@@ -22,6 +51,7 @@ class Game
         this.elapsedTime = 0;
         this.delay = 1000; // 1 second
         this.ctx = canvas.context;
+        this.background = new Background(canvas, 'img/bg.png');
     }
 
     start()
@@ -55,17 +85,16 @@ class Game
 
         if (this.timer > this.delay)
         {
-            this.timer =  0;
+            this.timer = 0;
             this.elapsedTime++;
-            console.log(this.elapsedTime);
         }
     }
 
     _draw()
     {
+        this.background.draw();
     }
 }
 
-let canvas = new Canvas(640, 400);
-
+let canvas = new Canvas(700, 400);
 new Game(canvas).start();
