@@ -93,7 +93,6 @@ class Game
         this.gameRunning = false;
         this.gamePaused = false;
         this.timer = 0;
-        this.frames = 0;
         this.lastTime = 0;
         this.deltaTime = 0;
         this.elapsedTime = 0;
@@ -102,6 +101,7 @@ class Game
         this.ctx = canvas.context;
         this.background = new Background(canvas, 'img/bg.png');
         this.groundY = 124;
+        this.balloonTimer = 0;
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
         this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
@@ -143,7 +143,7 @@ class Game
             this.elapsedTime++;
         }
 
-        if (this.frames % this.balloonSpawnInterval === 0)
+        if (this.balloonTimer % this.balloonSpawnInterval === 0)
         {
 
             // Clone balloons again if its empty
@@ -167,6 +167,9 @@ class Game
               randomBalloonColor,
               this.ctx
             ));
+
+            this.balloonSpawnInterval = Helper.getRandomInt(200, 350);
+            this.balloonTimer = 0;
         }
 
         // Update Balloons
@@ -182,7 +185,7 @@ class Game
             }
         }
 
-        this.frames++;
+        this.balloonTimer++;
     }
 
     _draw()
