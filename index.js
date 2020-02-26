@@ -2,9 +2,13 @@ class Game
 {
     constructor()
     {
-        this.timer = 0;
         this.gameRunning = false;
         this.gamePaused = false;
+        this.timer = 0;
+        this.lastTime = 0;
+        this.deltaTime = 0;
+        this.elapsedTime = 0;
+        this.delay = 1000; // 1 second
     }
 
     start()
@@ -18,22 +22,30 @@ class Game
         this._animate();
     }
 
-
-    _animate()
+    _animate(time = 0)
     {
         if (this.gamePaused)
         {
             return;
         }
 
-        this._update();
+        this._update(time);
         this._draw();
-        requestAnimationFrame(() => this._animate());
+        requestAnimationFrame((time) => this._animate(time));
     }
 
-    _update()
+    _update(time)
     {
-        this.timer++;
+        this.deltaTime = Math.floor(time - this.lastTime);
+        this.lastTime = time;
+        this.timer += this.deltaTime;
+
+        if (this.timer > this.delay)
+        {
+            this.timer =  0;
+            this.elapsedTime++;
+            console.log(this.elapsedTime);
+        }
     }
 
     _draw()
@@ -41,3 +53,4 @@ class Game
     }
 }
 
+new Game().start();
