@@ -1,3 +1,13 @@
+class Helper
+{
+    static getRandomInt(min, max)
+    {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+}
+
 class Canvas
 {
     constructor(width, height)
@@ -136,10 +146,10 @@ class Game
             let randomBalloonColor = this.balloonColors[Math.floor(Math.random() * this.balloonColors.length)];
 
             this.balloons.push(new Balloon(
-              600,
-              50,
-              1,
-              2,
+              700,
+              Math.random() * 100,
+              -1,
+              0,
               randomBalloonColor,
               this.ctx
             ));
