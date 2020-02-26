@@ -39,6 +39,43 @@ class Background
     }
 }
 
+class Balloon
+{
+    constructor(x, y, dx, dy, color, context)
+    {
+        this.y = y;
+        this.x = x;
+        this.dx = dx;
+        this.dy = dy;
+        this.h = 50;
+        this.w = 50;
+        this.ctx = context;
+        this.img = new Image();
+        this.img.src = 'img/balloon-' + color + '.png';
+    }
+
+    update()
+    {
+        this.x += this.dx;
+        this.y += this.dy;
+    }
+
+    draw()
+    {
+        this.ctx.drawImage(
+          this.img, //The image file
+          this.x, this.y, //The destination x and y position
+          this.w, this.h //The destination height and width
+        );
+
+    }
+
+    outOfScreen()
+    {
+        return this.x + this.w < 0 || this.x > this.ctx.canvas.width || this.y > this.ctx.canvas.height;
+    }
+}
+
 class Game
 {
     constructor(canvas)
@@ -46,12 +83,17 @@ class Game
         this.gameRunning = false;
         this.gamePaused = false;
         this.timer = 0;
+        this.frames = 0;
         this.lastTime = 0;
         this.deltaTime = 0;
         this.elapsedTime = 0;
         this.delay = 1000; // 1 second
+
         this.ctx = canvas.context;
         this.background = new Background(canvas, 'img/bg.png');
+        this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
+        this.balloons = [];
+        this.balloonSpawnInterval = 100;
     }
 
     start()
@@ -88,11 +130,46 @@ class Game
             this.timer = 0;
             this.elapsedTime++;
         }
+
+        if (this.frames % this.balloonSpawnInterval === 0)
+        {
+            let randomBalloonColor = this.balloonColors[Math.floor(Math.random() * this.balloonColors.length)];
+
+            this.balloons.push(new Balloon(
+              600,
+              50,
+              1,
+              2,
+              randomBalloonColor,
+              this.ctx
+            ));
+        }
+
+        // Update Balloons
+        for (let i in this.balloons)
+        {
+            // Update balloon position
+            this.balloons[i].update();
+
+            // Remove the balloon if out of screen.
+            if (this.balloons[i].outOfScreen())
+            {
+                this.balloons.splice(i, 1);
+            }
+        }
+
+        this.frames++;
     }
 
     _draw()
     {
         this.background.draw();
+
+        // Draw balloons
+        for (let i in this.balloons)
+        {
+            this.balloons[i].draw();
+        }
     }
 }
 
