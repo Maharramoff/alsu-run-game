@@ -1,6 +1,18 @@
+class Canvas
+{
+    constructor(width, height)
+    {
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = width;
+        this.canvas.height = height;
+        document.getElementById('game-wrapper').appendChild(this.canvas);
+        this.context = this.canvas.getContext('2d');
+    }
+}
+
 class Game
 {
-    constructor()
+    constructor(canvas)
     {
         this.gameRunning = false;
         this.gamePaused = false;
@@ -9,6 +21,7 @@ class Game
         this.deltaTime = 0;
         this.elapsedTime = 0;
         this.delay = 1000; // 1 second
+        this.ctx = canvas.context;
     }
 
     start()
@@ -53,4 +66,6 @@ class Game
     }
 }
 
-new Game().start();
+let canvas = new Canvas(640, 400);
+
+new Game(canvas).start();
