@@ -126,23 +126,14 @@ class Game
             return;
         }
 
+        this._create();
         this._update(time);
         this._draw();
         requestAnimationFrame((time) => this._animate(time));
     }
 
-    _update(time)
+    _create()
     {
-        this.deltaTime = Math.floor(time - this.lastTime);
-        this.lastTime = time;
-        this.timer += this.deltaTime;
-
-        if (this.timer > this.delay)
-        {
-            this.timer = 0;
-            this.elapsedTime++;
-        }
-
         if (this.balloonTimer % this.balloonSpawnInterval === 0)
         {
 
@@ -171,6 +162,21 @@ class Game
             this.balloonSpawnInterval = Helper.getRandomInt(200, 350);
             this.balloonTimer = 0;
         }
+    }
+
+    _update(time)
+    {
+        this.deltaTime = Math.floor(time - this.lastTime);
+        this.lastTime = time;
+        this.timer += this.deltaTime;
+
+        if (this.timer > this.delay)
+        {
+            this.timer = 0;
+            this.elapsedTime++;
+        }
+
+        this.balloonTimer++;
 
         // Update Balloons
         for (let i in this.balloons)
@@ -184,8 +190,6 @@ class Game
                 this.balloons.splice(i, 1);
             }
         }
-
-        this.balloonTimer++;
     }
 
     _draw()
@@ -201,4 +205,5 @@ class Game
 }
 
 let canvas = new Canvas(700, 400);
-new Game(canvas).start();
+let game = new Game(canvas);
+game.start();
