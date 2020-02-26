@@ -101,9 +101,11 @@ class Game
 
         this.ctx = canvas.context;
         this.background = new Background(canvas, 'img/bg.png');
+        this.groundY = 124;
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
+        this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
-        this.balloonSpawnInterval = 100;
+        this.balloonSpawnInterval = 200;
     }
 
     start()
@@ -143,11 +145,23 @@ class Game
 
         if (this.frames % this.balloonSpawnInterval === 0)
         {
-            let randomBalloonColor = this.balloonColors[Math.floor(Math.random() * this.balloonColors.length)];
+
+            // Clone balloons again if its empty
+            if(this.balloonColorsCopy.length === 0)
+            {
+                this.balloonColorsCopy = [...this.balloonColors];
+            }
+
+            // Get unique balloon randomly
+            let randomBalloonColorIdx = Math.floor(Math.random() * this.balloonColorsCopy.length);
+            let randomBalloonColor = this.balloonColorsCopy[randomBalloonColorIdx];
+
+            // Remove current generated balloon from copy
+            this.balloonColorsCopy.splice(randomBalloonColorIdx, 1);
 
             this.balloons.push(new Balloon(
               700,
-              Math.random() * 100,
+              Helper.getRandomInt(100, this.groundY + 50),
               -1,
               0,
               randomBalloonColor,
