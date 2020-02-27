@@ -132,11 +132,28 @@ class Player
         this.frameCount = this.sprites.length;
         this.nextFrame = 0;
         this.frameInterval = 5;
+
+        this.jumpHeight = 15;
+        this.grounded = false;
+        this.gravity = 1;
     }
 
     update()
     {
         this.y += this.dy;
+
+        // Gravity
+        if (this.y + this.h < this.ctx.canvas.height - this.groundY)
+        {
+            this.dy += this.gravity;
+            this.grounded = false;
+        }
+        else
+        {
+            this.dy = 0;
+            this.grounded = true;
+            this.y = this.ctx.canvas.height - this.groundY - this.h;
+        }
     }
 
     draw()
@@ -165,7 +182,10 @@ class Player
 
     jump()
     {
-        console.log('Jump!');
+        if (this.grounded)
+        {
+            this.dy = -this.jumpHeight;
+        }
     }
 }
 
@@ -243,7 +263,7 @@ class Game
 
             this.balloons.push(new Balloon(
               700,
-              Helper.getRandomInt(100, this.groundY + 50),
+              Helper.getRandomInt(50, 170),
               -1,
               0,
               randomBalloonColor,
