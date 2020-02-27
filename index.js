@@ -259,6 +259,7 @@ class Game
         }
 
         document.getElementById('game-starter').style.display = 'none';
+        document.getElementById('game-stats').style.display = 'block';
         this.gameRunning = true;
         this._mouseLeftClickListener();
         this._animate();
