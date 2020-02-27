@@ -240,6 +240,7 @@ class Game
             return false;
         }
 
+        document.getElementById('game-starter').style.display = 'none';
         this.gameRunning = true;
         this._mouseLeftClickListener();
         this._animate();
@@ -358,4 +359,3 @@ class Game
 
 let canvas = new Canvas(700, 400);
 let game = new Game(canvas);
-game.start();

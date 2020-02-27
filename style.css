@@ -8,3 +8,17 @@ canvas {
     display: block;
     margin: 20px auto 0;
 }
+
+#game-starter {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 150px;
+}
+
+#game-wrapper {
+    width: 700px;
+    display: block;
+    margin: 20px auto 0;
+    background-image: url('img/bg.png');
+}
