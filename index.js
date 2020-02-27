@@ -109,13 +109,19 @@ class Player
 {
     constructor(x, groundY, speed, context)
     {
-        this.sprites = [
+        this.runSprites = [
             { x: 0, y: 140, w: 68, h: 100 },
             { x: 75, y: 140, w: 68, h: 100 },
             { x: 149, y: 140, w: 71, h: 100 },
             { x: 228, y: 140, w: 69, h: 100 },
             { x: 306, y: 140, w: 68, h: 101 },
             { x: 382, y: 141, w: 68, h: 99 },
+        ];
+
+        this.jumpSprites = [
+            { x: 23, y: 265, w: 65, h: 105 },
+            { x: 97, y: 264, w: 78, h: 106 },
+            { x: 184, y: 272, w: 78, h: 97 },
         ];
 
         this.groundY = groundY;
@@ -129,12 +135,11 @@ class Player
         this.img.src = 'img/alsu.png';
 
         this.timer = 0;
-        this.frameCount = this.sprites.length;
         this.nextFrame = 0;
         this.frameInterval = 5;
 
         this.jumpHeight = 15;
-        this.grounded = false;
+        this.grounded = true;
         this.gravity = 1;
     }
 
@@ -158,26 +163,39 @@ class Player
 
     draw()
     {
-        if (this.nextFrame >= this.frameCount)
+        if (this.grounded)
         {
-            this.nextFrame = 0;
+            if (this.nextFrame >= this.runSprites.length)
+            {
+                this.nextFrame = 0;
+            }
+
+            this.ctx.drawImage(
+              this.img,
+              this.runSprites[this.nextFrame].x, this.runSprites[this.nextFrame].y,
+              this.runSprites[this.nextFrame].w, this.runSprites[this.nextFrame].h,
+              this.x, this.y,
+              this.runSprites[this.nextFrame].w, this.runSprites[this.nextFrame].h
+            );
+
+            if (this.timer > this.frameInterval)
+            {
+                this.timer = 0;
+                this.nextFrame++;
+            }
+
+            this.timer++;
         }
-
-        this.ctx.drawImage(
-          this.img,
-          this.sprites[this.nextFrame].x, this.sprites[this.nextFrame].y,
-          this.sprites[this.nextFrame].w, this.sprites[this.nextFrame].h,
-          this.x, this.y,
-          this.sprites[this.nextFrame].w, this.sprites[this.nextFrame].h
-        );
-
-        if (this.timer > this.frameInterval)
+        else
         {
-            this.timer = 0;
-            this.nextFrame++;
+            this.ctx.drawImage(
+              this.img,
+              this.jumpSprites[0].x, this.jumpSprites[0].y,
+              this.jumpSprites[0].w, this.jumpSprites[0].h,
+              this.x, this.y,
+              this.jumpSprites[0].w, this.jumpSprites[0].h
+            );
         }
-
-        this.timer++;
     }
 
     jump()
@@ -185,6 +203,7 @@ class Player
         if (this.grounded)
         {
             this.dy = -this.jumpHeight;
+            this.grounded = false;
         }
     }
 }
