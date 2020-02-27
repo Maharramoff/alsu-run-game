@@ -32,6 +32,23 @@ class Helper
     {
         return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
     }
+
+    /*
+    Delete an element from an array without
+    having to create a new array in the process
+    to keep garbage collection at a minimum
+    */
+    static removeIndex(array, index)
+    {
+        if (index >= array.length || array.length <= 0)
+        {
+            return;
+        }
+
+        array[index] = array[array.length - 1];
+        array[array.length - 1] = undefined;
+        array.length = array.length - 1;
+    }
 }
 
 class Sound
@@ -262,10 +279,10 @@ class Game
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
         this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
-        this.balloonSpawnInterval = 50;
+        this.balloonSpawnInterval = 100;
         this.collectSound = new Sound('sound/collect.mp3');
 
-        this.player = new Player(50, this.groundY, 10, this.ctx);
+        this.player = new Player(100, this.groundY, 10, this.ctx);
         this.score = 0;
     }
 
@@ -327,13 +344,13 @@ class Game
             this.balloons.push(new Balloon(
               700,
               Helper.getRandomInt(50, 170),
-              -2.5,
+              -3,
               0,
               randomBalloonColor,
               this.ctx
             ));
 
-            this.balloonSpawnInterval = Helper.getRandomInt(50, 200);
+            this.balloonSpawnInterval = Helper.getRandomInt(100, 200);
             this.balloonTimer = 0;
         }
     }
@@ -348,23 +365,19 @@ class Game
             // Update balloon position
             this.balloons[i].update();
 
-            if (this.balloons.hasOwnProperty(i))
+            if (this.balloons.hasOwnProperty(i) && this.player.collidesWith(this.balloons[i]))
             {
-                if (this.player.collidesWith(this.balloons[i]))
-                {
-                    this.collectSound.play();
-                    this._scoreUpdate();
-                    this.balloons.splice(i, 1);
-                }
+                this.collectSound.play();
+                this._scoreUpdate();
+                Helper.removeIndex(this.balloons, i);
+            }
 
-                // Remove the balloon if out of screen.
-                if (this.balloons[i].outOfScreen())
-                {
-                    this.balloons.splice(i, 1);
-                }
+            // Remove the balloon if out of screen.
+            if (this.balloons.hasOwnProperty(i) && this.balloons[i].outOfScreen())
+            {
+                Helper.removeIndex(this.balloons, i);
             }
         }
-
         // Update player position
         this.player.update();
     }
@@ -373,13 +386,13 @@ class Game
     {
         this.background.draw();
 
-        this.player.draw();
-
         // Draw balloons
         for (let i in this.balloons)
         {
             this.balloons[i].draw();
         }
+
+        this.player.draw();
     }
 
     _mouseLeftClick(event)
