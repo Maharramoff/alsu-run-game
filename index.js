@@ -258,7 +258,7 @@ class Game
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
         this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
-        this.balloonSpawnInterval = 200;
+        this.balloonSpawnInterval = 50;
         this.collectSound = new Sound('sound/collect.mp3');
 
         this.player = new Player(50, this.groundY, 10, this.ctx);
@@ -317,13 +317,13 @@ class Game
             this.balloons.push(new Balloon(
               700,
               Helper.getRandomInt(50, 170),
-              -1,
+              -2.5,
               0,
               randomBalloonColor,
               this.ctx
             ));
 
-            this.balloonSpawnInterval = Helper.getRandomInt(200, 350);
+            this.balloonSpawnInterval = Helper.getRandomInt(50, 200);
             this.balloonTimer = 0;
         }
     }
@@ -348,17 +348,20 @@ class Game
             // Update balloon position
             this.balloons[i].update();
 
-            if (this.balloons.hasOwnProperty(i) && this.player.collidesWith(this.balloons[i]))
+            if (this.balloons.hasOwnProperty(i))
             {
-                this.collectSound.play();
-                this.balloons.splice(i, 1);
-                this._scoreUpdate();
-            }
+                if(this.player.collidesWith(this.balloons[i]))
+                {
+                    this.collectSound.play();
+                    this._scoreUpdate();
+                    this.balloons.splice(i, 1);
+                }
 
-            // Remove the balloon if out of screen.
-            if (this.balloons[i].outOfScreen())
-            {
-                this.balloons.splice(i, 1);
+                // Remove the balloon if out of screen.
+                if (this.balloons[i].outOfScreen())
+                {
+                    this.balloons.splice(i, 1);
+                }
             }
         }
 
