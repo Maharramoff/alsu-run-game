@@ -6,6 +6,27 @@ class Helper
         max = Math.floor(max);
         return Math.floor(Math.random() * (max - min + 1)) + min;
     }
+
+    static mouseLeftClick(evt)
+    {
+        let flag = false;
+
+        evt = evt || window.event;
+
+        if ('buttons' in evt)
+        {
+            flag = evt.buttons === 1;
+        }
+
+        if (!flag)
+        {
+            let button = evt.which || evt.button;
+
+            flag = button === 1;
+        }
+
+        return flag;
+    }
 }
 
 class Canvas
@@ -141,6 +162,11 @@ class Player
 
         this.timer++;
     }
+
+    jump()
+    {
+        console.log('Jump!');
+    }
 }
 
 class Game
@@ -176,6 +202,7 @@ class Game
         }
 
         this.gameRunning = true;
+        this._mouseLeftClickListener();
         this._animate();
     }
 
@@ -270,6 +297,23 @@ class Game
         {
             this.balloons[i].draw();
         }
+    }
+
+    _mouseLeftClick(event)
+    {
+        if (Helper.mouseLeftClick(event))
+        {
+            this.player.jump();
+        }
+    }
+
+    _mouseLeftClickListener()
+    {
+        let self = this;
+        this.ctx.canvas.addEventListener('mousedown', function (event)
+        {
+            self._mouseLeftClick(event);
+        });
     }
 }
 
