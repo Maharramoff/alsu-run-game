@@ -93,6 +93,7 @@ class Balloon
         this.dy = dy;
         this.h = 50;
         this.w = 50;
+        this.radius = 25;
         this.ctx = context;
         this.img = new Image();
         this.img.src = 'img/balloon-' + color + '.png';
@@ -145,6 +146,7 @@ class Player
         this.x = x;
         this.y = this.ctx.canvas.height - this.groundY - this.h;
         this.dy = 0;
+        this.radius = 40;
 
         this.img = new Image();
         this.img.src = 'img/alsu.png';
@@ -224,6 +226,16 @@ class Player
             this.grounded = false;
         }
     }
+
+    collidesWith(object)
+    {
+        return this.distanceBetween(object) < (this.radius + object.radius);
+    }
+
+    distanceBetween(object)
+    {
+        return Math.sqrt(Math.pow(this.x - object.x, 2) + Math.pow(this.y - object.y, 2));
+    }
 }
 
 class Game
@@ -247,8 +259,10 @@ class Game
         this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
         this.balloonSpawnInterval = 200;
+        this.collectSound = new Sound('sound/collect.mp3');
 
         this.player = new Player(50, this.groundY, 10, this.ctx);
+        this.score = 0;
     }
 
     start()
@@ -334,6 +348,13 @@ class Game
             // Update balloon position
             this.balloons[i].update();
 
+            if (this.balloons.hasOwnProperty(i) && this.player.collidesWith(this.balloons[i]))
+            {
+                this.collectSound.play();
+                this.balloons.splice(i, 1);
+                this._scoreUpdate();
+            }
+
             // Remove the balloon if out of screen.
             if (this.balloons[i].outOfScreen())
             {
@@ -373,6 +394,11 @@ class Game
         {
             self._mouseLeftClick(event);
         });
+    }
+
+    _scoreUpdate()
+    {
+        document.getElementById('game-score').innerText = '' + ++this.score;
     }
 }
 
