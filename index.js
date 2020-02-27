@@ -27,6 +27,11 @@ class Helper
 
         return flag;
     }
+
+    static _timestamp()
+    {
+        return window.performance && window.performance.now ? window.performance.now() : new Date().getTime();
+    }
 }
 
 class Sound
@@ -74,10 +79,10 @@ class Background
         {
             this.scrollX = 0;
         }
-
         // Update background X position
         this.scrollX += this.scrollSpeed;
 
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
@@ -245,11 +250,10 @@ class Game
         this.gameRunning = false;
         this.gamePaused = false;
         this.fps = 60;
-        this.timer = 0;
-        this.lastTime = 0;
+        this.step = 1 / this.fps;
+        this.now = 0;
+        this.lastTime = Helper._timestamp();
         this.deltaTime = 0;
-        this.elapsedTime = 0;
-        this.delay = 1000; // 1 second
 
         this.ctx = canvas.context;
         this.background = new Background(canvas, 'img/bg.png');
@@ -286,17 +290,23 @@ class Game
             return;
         }
 
-        this._create();
-        this._update(time);
-        this._draw();
+        this.now = Helper._timestamp();
+        this.deltaTime = this.deltaTime + Math.min(1, (this.now - this.lastTime) / 1000);
 
-        setTimeout(() =>
+        while (this.deltaTime > this.step)
         {
-            requestAnimationFrame((time) => this._animate(time));
-        }, 1000 / this.fps);
+            this.deltaTime = this.deltaTime - this.step;
+            this._create(this.step);
+            this._update(this.step);
+        }
+
+        this._draw(this.deltaTime);
+        this.lastTime = this.now;
+
+        requestAnimationFrame((time) => this._animate(time));
     }
 
-    _create()
+    _create(step)
     {
         if (this.balloonTimer % this.balloonSpawnInterval === 0)
         {
@@ -328,18 +338,8 @@ class Game
         }
     }
 
-    _update(time)
+    _update(step)
     {
-        this.deltaTime = Math.floor(time - this.lastTime);
-        this.lastTime = time;
-        this.timer += this.deltaTime;
-
-        if (this.timer > this.delay)
-        {
-            this.timer = 0;
-            this.elapsedTime++;
-        }
-
         this.balloonTimer++;
 
         // Update Balloons
@@ -350,7 +350,7 @@ class Game
 
             if (this.balloons.hasOwnProperty(i))
             {
-                if(this.player.collidesWith(this.balloons[i]))
+                if (this.player.collidesWith(this.balloons[i]))
                 {
                     this.collectSound.play();
                     this._scoreUpdate();
@@ -369,7 +369,7 @@ class Game
         this.player.update();
     }
 
-    _draw()
+    _draw(dt)
     {
         this.background.draw();
 
