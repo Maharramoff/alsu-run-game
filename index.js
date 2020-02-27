@@ -29,6 +29,21 @@ class Helper
     }
 }
 
+class Sound
+{
+    constructor(src)
+    {
+        this.audio = new Audio(src);
+    }
+
+    play()
+    {
+        this.audio.pause();
+        this.audio.currentTime = 0;
+        this.audio.play().then(() => {}).catch(() => {})
+    }
+}
+
 class Canvas
 {
     constructor(width, height)
@@ -134,6 +149,8 @@ class Player
         this.img = new Image();
         this.img.src = 'img/alsu.png';
 
+        this.jumpSound = new Sound('sound/jump.mp3');
+
         this.timer = 0;
         this.nextFrame = 0;
         this.frameInterval = 5;
@@ -202,6 +219,7 @@ class Player
     {
         if (this.grounded)
         {
+            this.jumpSound.play();
             this.dy = -this.jumpHeight;
             this.grounded = false;
         }
