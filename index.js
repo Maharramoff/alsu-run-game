@@ -33,8 +33,6 @@ class Background
 
     draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
         // Resetting the images when the first image exits the screen
         if (this.scrollX >= this.ctx.canvas.width)
         {
@@ -86,12 +84,72 @@ class Balloon
     }
 }
 
+class Player
+{
+    constructor(x, groundY, speed, context)
+    {
+        this.sprites = [
+            { x: 0, y: 140, w: 68, h: 100 },
+            { x: 75, y: 140, w: 68, h: 100 },
+            { x: 149, y: 140, w: 71, h: 100 },
+            { x: 228, y: 140, w: 69, h: 100 },
+            { x: 306, y: 140, w: 68, h: 101 },
+            { x: 382, y: 141, w: 68, h: 99 },
+        ];
+
+        this.groundY = groundY;
+        this.ctx = context;
+        this.h = 100;
+        this.x = x;
+        this.y = this.ctx.canvas.height - this.groundY - this.h;
+        this.dy = 0;
+
+        this.img = new Image();
+        this.img.src = 'img/alsu.png';
+
+        this.timer = 0;
+        this.frameCount = this.sprites.length;
+        this.nextFrame = 0;
+        this.frameInterval = 5;
+    }
+
+    update()
+    {
+        this.y += this.dy;
+    }
+
+    draw()
+    {
+        if (this.nextFrame >= this.frameCount)
+        {
+            this.nextFrame = 0;
+        }
+
+        this.ctx.drawImage(
+          this.img,
+          this.sprites[this.nextFrame].x, this.sprites[this.nextFrame].y,
+          this.sprites[this.nextFrame].w, this.sprites[this.nextFrame].h,
+          this.x, this.y,
+          this.sprites[this.nextFrame].w, this.sprites[this.nextFrame].h
+        );
+
+        if (this.timer > this.frameInterval)
+        {
+            this.timer = 0;
+            this.nextFrame++;
+        }
+
+        this.timer++;
+    }
+}
+
 class Game
 {
     constructor(canvas)
     {
         this.gameRunning = false;
         this.gamePaused = false;
+        this.fps = 60;
         this.timer = 0;
         this.lastTime = 0;
         this.deltaTime = 0;
@@ -106,6 +164,8 @@ class Game
         this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
         this.balloonSpawnInterval = 200;
+
+        this.player = new Player(50, this.groundY, 10, this.ctx);
     }
 
     start()
@@ -129,7 +189,11 @@ class Game
         this._create();
         this._update(time);
         this._draw();
-        requestAnimationFrame((time) => this._animate(time));
+
+        setTimeout(() =>
+        {
+            requestAnimationFrame((time) => this._animate(time));
+        }, 1000 / this.fps);
     }
 
     _create()
@@ -138,7 +202,7 @@ class Game
         {
 
             // Clone balloons again if its empty
-            if(this.balloonColorsCopy.length === 0)
+            if (this.balloonColorsCopy.length === 0)
             {
                 this.balloonColorsCopy = [...this.balloonColors];
             }
@@ -190,11 +254,16 @@ class Game
                 this.balloons.splice(i, 1);
             }
         }
+
+        // Update player position
+        this.player.update();
     }
 
     _draw()
     {
         this.background.draw();
+
+        this.player.draw();
 
         // Draw balloons
         for (let i in this.balloons)
