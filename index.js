@@ -98,7 +98,7 @@ class Background
         }
         // Update background X position
         this.scrollX += this.scrollSpeed * dt;
-        this.scrollX = Math.floor(this.scrollX);
+        this.scrollX = Math.round(this.scrollX);
     }
 
     draw()
@@ -128,8 +128,8 @@ class Balloon
         this.x += this.dx * dt;
         this.y += this.dy * dt;
 
-        this.x = Math.floor(this.x);
-        this.y = Math.floor(this.y);
+        this.x = Math.round(this.x);
+        this.y = Math.round(this.y);
     }
 
     draw()
@@ -206,7 +206,7 @@ class Player
             this.y = this.ctx.canvas.height - this.groundY - this.h;
         }
 
-        this.y = Math.floor(this.y);
+        this.y = Math.round(this.y);
     }
 
     draw()
@@ -281,7 +281,7 @@ class Game
         this.elapsedTime = 0;
 
         this.ctx = canvas.context;
-        this.background = new Background(canvas, 'img/bg.png');
+        //this.background = new Background(canvas, 'img/bg.png');
         this.groundY = 124;
         this.balloonTimer = 0;
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
@@ -348,7 +348,7 @@ class Game
             this.balloons.push(new Balloon(
               700,
               Helper.getRandomInt(50, 170),
-              -200,
+              -250,
               0,
               balloonImg,
               this.ctx,
@@ -362,7 +362,7 @@ class Game
     _update(dt)
     {
         // Update Background position
-        this.background.update(dt);
+        //this.background.update(dt);
 
         // Update player position
         this.player.update(dt);
@@ -399,7 +399,7 @@ class Game
     _draw()
     {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.background.draw();
+        //this.background.draw();
         this.player.draw();
 
         // Draw balloons

@@ -4,6 +4,28 @@
     box-sizing: border-box;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.bg {
+    height: 400px;
+    background: url(img/bg.png) repeat 0 0;
+    -webkit-animation: slide 4s linear infinite;
+    width: 700px;
+    margin: 0 auto;
+}
+
+@-webkit-keyframes slide {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: -700px 0;
+    }
+}
+
 canvas {
     display: block;
     margin: 20px auto 0;
