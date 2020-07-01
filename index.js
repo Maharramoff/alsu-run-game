@@ -98,11 +98,11 @@ class Background
         }
         // Update background X position
         this.scrollX += this.scrollSpeed * dt;
+        this.scrollX = Math.floor(this.scrollX);
     }
 
     draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
@@ -110,7 +110,7 @@ class Background
 
 class Balloon
 {
-    constructor(x, y, dx, dy, color, context)
+    constructor(x, y, dx, dy, img, context)
     {
         this.y = y;
         this.x = x;
@@ -120,14 +120,16 @@ class Balloon
         this.w = 50;
         this.radius = 25;
         this.ctx = context;
-        this.img = new Image();
-        this.img.src = 'img/balloon-' + color + '.png';
+        this.img = img;
     }
 
     update(dt)
     {
         this.x += this.dx * dt;
         this.y += this.dy * dt;
+
+        this.x = Math.floor(this.x);
+        this.y = Math.floor(this.y);
     }
 
     draw()
@@ -203,6 +205,8 @@ class Player
             this.grounded = true;
             this.y = this.ctx.canvas.height - this.groundY - this.h;
         }
+
+        this.y = Math.floor(this.y);
     }
 
     draw()
@@ -281,13 +285,19 @@ class Game
         this.groundY = 124;
         this.balloonTimer = 0;
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
-        this.balloonColorsCopy = [...this.balloonColors];
         this.balloons = [];
         this.balloonSpawnInterval = 100;
         this.collectSound = new Sound('sound/collect.mp3');
 
         this.player = new Player(100, this.groundY, 10, this.ctx);
         this.score = 0;
+        this.balloonImgs = [];
+
+        Object.keys(this.balloonColors).forEach(key =>
+        {
+            this.balloonImgs[key] = new Image();
+            this.balloonImgs[key].src = 'img/balloon-' + this.balloonColors[key] + '.png';
+        });
     }
 
     start()
@@ -314,9 +324,9 @@ class Game
         this.now = Helper._timestamp();
         this.deltaTime = Math.min(1, (this.now - this.lastTime) / 1000);
         this.elapsedTime += this.deltaTime;
+        this._create();
         while (this.elapsedTime > this.step)
         {
-            this._create();
             this._update(this.step);
             this.elapsedTime -= this.step;
         }
@@ -332,29 +342,19 @@ class Game
         if (this.balloonTimer % this.balloonSpawnInterval === 0)
         {
 
-            // Clone balloons again if its empty
-            if (this.balloonColorsCopy.length === 0)
-            {
-                this.balloonColorsCopy = [...this.balloonColors];
-            }
-
-            // Get unique balloon randomly
-            let randomBalloonColorIdx = Math.floor(Math.random() * this.balloonColorsCopy.length);
-            let randomBalloonColor = this.balloonColorsCopy[randomBalloonColorIdx];
-
-            // Remove current generated balloon from copy
-            this.balloonColorsCopy.splice(randomBalloonColorIdx, 1);
+            // Get balloon randomly
+            let balloonImg = this.balloonImgs[Helper.getRandomInt(0, 4)];
 
             this.balloons.push(new Balloon(
               700,
               Helper.getRandomInt(50, 170),
               -200,
               0,
-              randomBalloonColor,
-              this.ctx
+              balloonImg,
+              this.ctx,
             ));
 
-            this.balloonSpawnInterval = Helper.getRandomInt(10, 150);
+            this.balloonSpawnInterval = Helper.getRandomInt(50, 100);
             this.balloonTimer = 0;
         }
     }
@@ -372,13 +372,10 @@ class Game
         {
             if (this.balloons.hasOwnProperty(i))
             {
-                // Update balloon position
-                this.balloons[i].update(dt);
-
                 if (this.player.collidesWith(this.balloons[i]))
                 {
-                    this.collectSound.play();
                     Helper.removeIndex(this.balloons, i);
+                    this.collectSound.play();
                     this._scoreUpdate();
                 }
 
@@ -386,6 +383,12 @@ class Game
                 if (this.balloons.hasOwnProperty(i) && this.balloons[i].outOfScreen())
                 {
                     Helper.removeIndex(this.balloons, i);
+                }
+
+                // Update balloon position
+                if (this.balloons.hasOwnProperty(i))
+                {
+                    this.balloons[i].update(dt);
                 }
             }
         }
@@ -395,6 +398,7 @@ class Game
 
     _draw()
     {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.background.draw();
         this.player.draw();
 
