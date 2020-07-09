@@ -68,21 +68,22 @@ class Sound
 
 class Canvas
 {
-    constructor(width, height)
+    constructor(width, height, zIndex)
     {
         this.canvas = document.createElement('canvas');
         this.canvas.width = width;
         this.canvas.height = height;
-        document.getElementById('game-wrapper').appendChild(this.canvas);
+        document.body.append(this.canvas);
         this.context = this.canvas.getContext('2d');
+        this.canvas.style.zIndex = zIndex;
     }
 }
 
 class Background
 {
-    constructor(canvas, src)
+    constructor(context, src)
     {
-        this.ctx = canvas.context;
+        this.ctx = context;
         this.img = new Image();
         this.scrollX = 0;
         this.scrollSpeed = 200;
@@ -103,6 +104,7 @@ class Background
 
     draw()
     {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
@@ -168,7 +170,8 @@ class Player
         ];
 
         this.groundY = groundY;
-        this.ctx = context;
+        this.playerCanvas = new Canvas(context.canvas.width, context.canvas.height, 1);
+        this.ctx = this.playerCanvas.context;
         this.h = 100;
         this.x = x;
         this.y = this.ctx.canvas.height - this.groundY - this.h;
@@ -211,6 +214,8 @@ class Player
 
     draw()
     {
+
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         if (this.grounded)
         {
             if (this.nextFrame >= this.runSprites.length)
@@ -269,7 +274,7 @@ class Player
 
 class Game
 {
-    constructor(canvas)
+    constructor(context)
     {
         this.gameRunning = false;
         this.gamePaused = false;
@@ -280,9 +285,10 @@ class Game
         this.deltaTime = 0;
         this.elapsedTime = 0;
 
-        this.ctx = canvas.context;
-        //this.background = new Background(canvas, 'img/bg.png');
+        this.ctx = context;
+        this.background = new Background(this.ctx, 'img/bg.png');
         this.groundY = 124;
+        this.balloonCanvas = new Canvas(context.canvas.width, context.canvas.height, 2);
         this.balloonTimer = 0;
         this.balloonColors = ['aqua', 'blue', 'green', 'pink', 'red'];
         this.balloons = [];
@@ -298,6 +304,10 @@ class Game
             this.balloonImgs[key] = new Image();
             this.balloonImgs[key].src = 'img/balloon-' + this.balloonColors[key] + '.png';
         });
+
+        this.stats = new Stats();
+        this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+        document.body.appendChild(this.stats.dom);
     }
 
     start()
@@ -321,6 +331,7 @@ class Game
             return;
         }
 
+        this.stats.begin();
         this.now = Helper._timestamp();
         this.deltaTime = Math.min(1, (this.now - this.lastTime) / 1000);
         this.elapsedTime += this.deltaTime;
@@ -333,6 +344,7 @@ class Game
 
         this._draw();
         this.lastTime = this.now;
+        this.stats.end();
 
         requestAnimationFrame(() => this._animate());
     }
@@ -351,7 +363,7 @@ class Game
               -250,
               0,
               balloonImg,
-              this.ctx,
+              this.balloonCanvas.context,
             ));
 
             this.balloonSpawnInterval = Helper.getRandomInt(50, 100);
@@ -362,7 +374,7 @@ class Game
     _update(dt)
     {
         // Update Background position
-        //this.background.update(dt);
+        this.background.update(dt);
 
         // Update player position
         this.player.update(dt);
@@ -398,11 +410,10 @@ class Game
 
     _draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        //this.background.draw();
+        this.background.draw();
         this.player.draw();
-
         // Draw balloons
+        this.balloonCanvas.context.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         for (let i in this.balloons)
         {
             if (this.balloons.hasOwnProperty(i))
@@ -423,7 +434,7 @@ class Game
     _mouseLeftClickListener()
     {
         let self = this;
-        this.ctx.canvas.addEventListener('mousedown', function (event)
+        document.body.addEventListener('mousedown', function (event)
         {
             self._mouseLeftClick(event);
         });
@@ -435,5 +446,5 @@ class Game
     }
 }
 
-let canvas = new Canvas(700, 400);
-let game = new Game(canvas);
+let canvas = new Canvas(700, 400, 0);
+let game = new Game(canvas.context);

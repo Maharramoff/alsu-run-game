@@ -29,6 +29,10 @@ body {
 canvas {
     display: block;
     margin: 20px auto 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
 }
 
 #game-starter {
@@ -36,17 +40,24 @@ canvas {
     left: 0;
     right: 0;
     top: 150px;
+    z-index: 3;
 }
 
 #game-wrapper {
     width: 700px;
+    height: 400px;
     display: block;
     margin: 20px auto 0;
-    background-image: url('img/bg.png');
+    position: absolute;
+    background: url(img/bg.png) no-repeat;
+    top: 0;
+    right: 0;
+    left: 0;
 }
 
 #game-stats {
     position: absolute;
+    z-index: 1;
 }
 
 #game-score {
