@@ -103,7 +103,8 @@ class Background
 
     draw()
     {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        // Clear canvas hack
+        this.ctx.canvas.width = this.ctx.canvas.width;
         this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
@@ -214,7 +215,7 @@ class Player
     draw()
     {
 
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.canvas.width = this.ctx.canvas.width;
         if (this.grounded)
         {
             if (this.nextFrame >= this.runSprites.length)
@@ -359,7 +360,7 @@ class Game
 
             this.balloons.push(new Balloon(
               700,
-              Helper.getRandomInt(50, 170),
+              Helper.getRandomInt(50, 50),
               -this.speed,
               0,
               balloonImg,
@@ -413,7 +414,7 @@ class Game
         this.background.draw();
         this.player.draw();
         // Draw balloons
-        this.balloonCanvas.context.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.balloonCanvas.context.canvas.width = this.balloonCanvas.context.canvas.width;
         for (let i in this.balloons)
         {
             if (this.balloons.hasOwnProperty(i))
