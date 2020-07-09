@@ -60,7 +60,6 @@ class Sound
 
     play()
     {
-        this.audio.pause();
         this.audio.currentTime = 0;
         this.audio.play().then(() => {}).catch(() => {})
     }
@@ -81,12 +80,12 @@ class Canvas
 
 class Background
 {
-    constructor(context, src)
+    constructor(context, src, speed)
     {
         this.ctx = context;
         this.img = new Image();
         this.scrollX = 0;
-        this.scrollSpeed = 200;
+        this.scrollSpeed = speed;
         this.img.src = src;
     }
 
@@ -278,6 +277,7 @@ class Game
     {
         this.gameRunning = false;
         this.gamePaused = false;
+        this.speed = 200;
         this.fps = 60;
         this.step = 1 / this.fps;
         this.now = 0;
@@ -286,7 +286,7 @@ class Game
         this.elapsedTime = 0;
 
         this.ctx = context;
-        this.background = new Background(this.ctx, 'img/bg.png');
+        this.background = new Background(this.ctx, 'img/bg.png', this.speed);
         this.groundY = 124;
         this.balloonCanvas = new Canvas(context.canvas.width, context.canvas.height, 2);
         this.balloonTimer = 0;
@@ -360,7 +360,7 @@ class Game
             this.balloons.push(new Balloon(
               700,
               Helper.getRandomInt(50, 170),
-              -250,
+              -this.speed,
               0,
               balloonImg,
               this.balloonCanvas.context,
