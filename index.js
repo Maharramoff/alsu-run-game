@@ -49,6 +49,11 @@ class Helper
         array[array.length - 1] = undefined;
         array.length = array.length - 1;
     }
+
+    static round(number, decimals = false)
+    {
+        return Math.round(number);
+    }
 }
 
 class Sound
@@ -96,17 +101,18 @@ class Background
         {
             this.scrollX = 0;
         }
+
         // Update background X position
         this.scrollX += this.scrollSpeed * dt;
-        this.scrollX = Math.round(this.scrollX);
+        //this.scrollX = Math.round(this.scrollX);
     }
 
     draw()
     {
         // Clear canvas hack
         this.ctx.canvas.width = this.ctx.canvas.width;
-        this.ctx.drawImage(this.img, -this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.drawImage(this.img, this.ctx.canvas.width - this.scrollX, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.drawImage(this.img, -Helper.round(this.scrollX), 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.drawImage(this.img, this.ctx.canvas.width - Helper.round(this.scrollX), 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 }
 
@@ -130,15 +136,15 @@ class Balloon
         this.x += this.dx * dt;
         this.y += this.dy * dt;
 
-        this.x = Math.round(this.x);
-        this.y = Math.round(this.y);
+       // this.x = Math.round(this.x);
+       // this.y = Math.round(this.y);
     }
 
     draw()
     {
         this.ctx.drawImage(
           this.img, //The image file
-          this.x, this.y, //The destination x and y position
+          Helper.round(this.x), Helper.round(this.y), //The destination x and y position
           this.w, this.h //The destination height and width
         );
 
@@ -209,7 +215,7 @@ class Player
             this.y = this.ctx.canvas.height - this.groundY - this.h;
         }
 
-        this.y = Math.round(this.y);
+        //this.y = Math.round(this.y);
     }
 
     draw()
@@ -227,7 +233,7 @@ class Player
               this.img,
               this.runSprites[this.nextFrame].x, this.runSprites[this.nextFrame].y,
               this.runSprites[this.nextFrame].w, this.runSprites[this.nextFrame].h,
-              this.x, this.y,
+              this.x, Helper.round(this.y),
               this.runSprites[this.nextFrame].w, this.runSprites[this.nextFrame].h
             );
 
@@ -245,7 +251,7 @@ class Player
               this.img,
               this.jumpSprites[0].x, this.jumpSprites[0].y,
               this.jumpSprites[0].w, this.jumpSprites[0].h,
-              this.x, this.y,
+              this.x, Helper.round(this.y),
               this.jumpSprites[0].w, this.jumpSprites[0].h
             );
         }
@@ -334,9 +340,9 @@ class Game
 
         this.stats.begin();
         this.now = Helper._timestamp();
-        this.deltaTime = Math.min(1, (this.now - this.lastTime) / 1000);
+        this.deltaTime = Math.min(0.1, (this.now - this.lastTime) / 1000);
         this.elapsedTime += this.deltaTime;
-        this._create();
+
         while (this.elapsedTime > this.step)
         {
             this._update(this.step);
@@ -350,17 +356,16 @@ class Game
         requestAnimationFrame(() => this._animate());
     }
 
-    _create()
+    spawnBalloons()
     {
         if (this.balloonTimer % this.balloonSpawnInterval === 0)
         {
-
             // Get balloon randomly
             let balloonImg = this.balloonImgs[Helper.getRandomInt(0, 4)];
 
             this.balloons.push(new Balloon(
               700,
-              Helper.getRandomInt(50, 50),
+              Helper.getRandomInt(50, 170),
               -this.speed,
               0,
               balloonImg,
@@ -379,6 +384,8 @@ class Game
 
         // Update player position
         this.player.update(dt);
+
+        this.spawnBalloons();
 
         // Update Balloons
         for (let i in this.balloons)
