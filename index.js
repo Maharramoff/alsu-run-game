@@ -50,7 +50,7 @@ class Helper
         array.length = array.length - 1;
     }
 
-    static round(number, decimals = false)
+    static round(number)
     {
         return Math.round(number);
     }
@@ -92,27 +92,24 @@ class Background
         this.scrollX = 0;
         this.scrollSpeed = speed;
         this.img.src = src;
+        this.totalSeconds = 0;
+        this.numImages = Math.ceil(this.ctx.canvas.width / this.img.width) + 1;
     }
 
     update(dt)
     {
-        // Resetting the images when the first image exits the screen
-        if (this.scrollX >= this.ctx.canvas.width)
-        {
-            this.scrollX = 0;
-        }
-
-        // Update background X position
-        this.scrollX += this.scrollSpeed * dt;
-        //this.scrollX = Math.round(this.scrollX);
+        this.totalSeconds += dt;
+        this.scrollX = this.totalSeconds * this.scrollSpeed % this.img.width
     }
 
     draw()
     {
-        // Clear canvas hack
-        this.ctx.canvas.width = this.ctx.canvas.width;
-        this.ctx.drawImage(this.img, -Helper.round(this.scrollX), 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.ctx.drawImage(this.img, this.ctx.canvas.width - Helper.round(this.scrollX), 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.ctx.save();
+        this.ctx.translate(-this.scrollX, 0);
+        for (let i = 0; i < this.numImages; i++) {
+            this.ctx.drawImage(this.img, i * this.img.width, 0);
+        }
+        this.ctx.restore();
     }
 }
 
@@ -349,7 +346,7 @@ class Game
             this.elapsedTime -= this.step;
         }
 
-        this._draw();
+        this._draw(this.deltaTime);
         this.lastTime = this.now;
         this.stats.end();
 
@@ -416,9 +413,9 @@ class Game
         this.balloonTimer++;
     }
 
-    _draw()
+    _draw(dt)
     {
-        this.background.draw();
+        this.background.draw(dt);
         this.player.draw();
         // Draw balloons
         this.balloonCanvas.context.canvas.width = this.balloonCanvas.context.canvas.width;
