@@ -106,7 +106,8 @@ class Background
     {
         this.ctx.save();
         this.ctx.translate(-this.scrollX, 0);
-        for (let i = 0; i < this.numImages; i++) {
+        for (let i = 0; i < this.numImages; i++)
+        {
             this.ctx.drawImage(this.img, i * this.img.width, 0);
         }
         this.ctx.restore();
@@ -133,8 +134,8 @@ class Balloon
         this.x += this.dx * dt;
         this.y += this.dy * dt;
 
-       // this.x = Math.round(this.x);
-       // this.y = Math.round(this.y);
+        // this.x = Math.round(this.x);
+        // this.y = Math.round(this.y);
     }
 
     draw()
@@ -308,10 +309,6 @@ class Game
             this.balloonImgs[key] = new Image();
             this.balloonImgs[key].src = 'img/balloon-' + this.balloonColors[key] + '.png';
         });
-
-        this.stats = new Stats();
-        this.stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-        document.body.appendChild(this.stats.dom);
     }
 
     start()
@@ -335,7 +332,6 @@ class Game
             return;
         }
 
-        this.stats.begin();
         this.now = Helper._timestamp();
         this.deltaTime = Math.min(0.1, (this.now - this.lastTime) / 1000);
         this.elapsedTime += this.deltaTime;
@@ -348,7 +344,6 @@ class Game
 
         this._draw(this.deltaTime);
         this.lastTime = this.now;
-        this.stats.end();
 
         requestAnimationFrame(() => this._animate());
     }
@@ -438,11 +433,15 @@ class Game
 
     _mouseLeftClickListener()
     {
-        let self = this;
-        document.body.addEventListener('mousedown', function (event)
+        document.body.addEventListener(window.PointerEvent ? 'pointerdown' : 'mousedown', (event) =>
         {
-            self._mouseLeftClick(event);
-        });
+            if (event.defaultPrevented)
+            {
+                return; // Do nothing if the event was already processed
+            }
+            this._mouseLeftClick(event);
+            event.preventDefault();
+        }, true);
     }
 
     _scoreUpdate()
